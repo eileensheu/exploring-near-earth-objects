@@ -86,21 +86,22 @@ class CloseApproach:
     private attribute, but the referenced NEO is eventually replaced in the
     `NEODatabase` constructor.
     """
-    # TODO: How can you, and should you, change the arguments to this constructor?
-    # If you make changes, be sure to update the comments in this file.
-    def __init__(self, **info):
+    def __init__(
+        self,
+        time:  Optional[str] = None,
+        distance: float = 0.0,
+        velocity: float = 0.0,
+    ) -> None:
         """Create a new `CloseApproach`.
 
-        :param info: A dictionary of excess keyword arguments supplied to the constructor.
+        :param time: A string of NASA-formatted calendar date/time, at which the NEO passes closest to Earth.
+        :param distance: A float of the nominal approach distance, in astronomical units, of the NEO to Earth at the closest point.
+        :param velocity: A float of the velocity, in kilometers per second, of the NEO relative to Earth at the closest point.
         """
-        # TODO: Assign information from the arguments passed to the constructor
-        # onto attributes named `_designation`, `time`, `distance`, and `velocity`.
-        # You should coerce these values to their appropriate data type and handle any edge cases.
-        # The `cd_to_datetime` function will be useful.
         self._designation = ''
-        self.time = None  # TODO: Use the cd_to_datetime function for this attribute.
-        self.distance = 0.0
-        self.velocity = 0.0
+        self.time = cd_to_datetime(time)
+        self.distance = distance
+        self.velocity = velocity
 
         # Create an attribute for the referenced NEO, originally None.
         self.neo = None
@@ -118,17 +119,15 @@ class CloseApproach:
         formatted string that can be used in human-readable representations and
         in serialization to CSV and JSON files.
         """
-        # TODO: Use this object's `.time` attribute and the `datetime_to_str` function to
-        # build a formatted representation of the approach time.
-        # TODO: Use self.designation and self.name to build a fullname for this object.
-        return ''
+        return datetime_to_str(self.time)
 
     def __str__(self):
         """Return `str(self)`."""
-        # TODO: Use this object's attributes to return a human-readable string representation.
-        # The project instructions include one possibility. Peek at the __repr__
-        # method for examples of advanced string formatting.
-        return f"A CloseApproach ..."
+        neo_name = self.neo.fullname if self.neo else self._designation
+        return f"On {self.time_str} in UTC, " \
+               f"the NEO named '{neo_name}' " \
+               f"approaches Earth at a distance of {self.distance:.2f} au " \
+               f"with a velocity of {self.velocity:.2f} km/s."
 
     def __repr__(self):
         """Return `repr(self)`, a computer-readable string representation of this object."""
