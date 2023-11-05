@@ -11,8 +11,9 @@ data on NEOs and close approaches extracted by `extract.load_neos` and
 
 You'll edit this file in Tasks 2 and 3.
 """
+from filters import AttributeFilter
 from models import NearEarthObject, CloseApproach
-from typing import Collection, Optional
+from typing import Collection, Iterable, Optional
 
 
 class NEODatabase:
@@ -103,7 +104,7 @@ class NEODatabase:
         except KeyError:
             return None
 
-    def query(self, filters=()):
+    def query(self, filters: Collection[AttributeFilter] = ()) -> Iterable[CloseApproach]:
         """Query close approaches to generate those that match a collection of filters.
 
         This generates a stream of `CloseApproach` objects that match all of the
@@ -117,6 +118,11 @@ class NEODatabase:
         :param filters: A collection of filters capturing user-specified criteria.
         :return: A stream of matching `CloseApproach` objects.
         """
-        # TODO: Generate `CloseApproach` objects that match all of the filters.
         for approach in self._approaches:
-            yield approach
+            try:
+                if all({filter(approach) for filter in filters}):
+                    yield approach
+            # get() of DiameterFilter and HazardousFilter could return None
+            # if the close-approach does not associate to a neo.
+            except TypeError:
+                return
