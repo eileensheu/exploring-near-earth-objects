@@ -55,6 +55,15 @@ class NearEarthObject:
         # Create an empty initial collection of linked approaches.
         self.approaches = []
 
+    @classmethod
+    def create(cls, neo_row):
+        return cls(
+            designation=str(neo_row[3]),
+            name=str(neo_row[4]),
+            diameter=float(neo_row[15]),
+            hazardous=True if str(neo_row[7]) == "Y" else False
+        )
+
     @property
     def fullname(self):
         """Return a representation of the full name of this NEO."""
@@ -88,23 +97,34 @@ class CloseApproach:
     """
     def __init__(
         self,
+        designation: str = '',
         time:  Optional[str] = None,
         distance: float = 0.0,
         velocity: float = 0.0,
     ) -> None:
         """Create a new `CloseApproach`.
 
+        :param designation: A string of the primary designation for the NearEarthObject.
         :param time: A string of NASA-formatted calendar date/time, at which the NEO passes closest to Earth.
         :param distance: A float of the nominal approach distance, in astronomical units, of the NEO to Earth at the closest point.
         :param velocity: A float of the velocity, in kilometers per second, of the NEO relative to Earth at the closest point.
         """
-        self._designation = ''
+        self._designation = designation
         self.time = cd_to_datetime(time)
         self.distance = distance
         self.velocity = velocity
 
         # Create an attribute for the referenced NEO, originally None.
         self.neo = None
+
+    @classmethod
+    def create(cls, data):
+        return cls(
+            designation=str(data[0]),
+            time=str(data[3]),
+            distance=float(data[4]),
+            velocity=float(data[7]),
+        )
 
     @property
     def time_str(self):
