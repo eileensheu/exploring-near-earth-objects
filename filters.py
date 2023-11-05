@@ -16,13 +16,21 @@ iterator.
 
 You'll edit this file in Tasks 3a and 3c.
 """
+import datetime
 import operator
+from models import CloseApproach
+from typing import Collection, Optional
 
 
 class UnsupportedCriterionError(NotImplementedError):
     """A filter criterion is unsupported."""
 
 
+# The three things that seem to be shared between all of our filters are
+# (1) a way to get the attribute we're interested in
+# (2) a way to compare that attribute against
+# (3) some reference value.
+# Where there's shared behavior, there's an opportunity for decomposition.
 class AttributeFilter:
     """A general superclass for filters on comparable attributes.
 
@@ -57,7 +65,7 @@ class AttributeFilter:
         return self.op(self.get(approach), self.value)
 
     @classmethod
-    def get(cls, approach):
+    def get(cls, approach: CloseApproach):
         """Get an attribute of interest from a close approach.
 
         Concrete subclasses must override this method to get an attribute of
@@ -72,13 +80,48 @@ class AttributeFilter:
         return f"{self.__class__.__name__}(op=operator.{self.op.__name__}, value={self.value})"
 
 
+class DateFilter(AttributeFilter):
+    @classmethod
+    def get(cls, approach: CloseApproach) -> datetime.date:
+        return approach.time.date()
+
+
+class DistanceFilter(AttributeFilter):
+    @classmethod
+    def get(cls, approach: CloseApproach) -> float:
+        return approach.distance
+
+
+class VelocityFilter(AttributeFilter):
+    @classmethod
+    def get(cls, approach: CloseApproach) -> float:
+        return approach.velocity
+
+
+class DiameterFilter(AttributeFilter):
+    @classmethod
+    def get(cls, approach: CloseApproach) -> Optional[float]:
+        return approach.neo.diameter if approach.neo else None
+
+
+class HazardousFilter(AttributeFilter):
+    @classmethod
+    def get(cls, approach: CloseApproach) -> Optional[bool]:
+        return approach.neo.hazardous if approach.neo else None
+
+
 def create_filters(
-        date=None, start_date=None, end_date=None,
-        distance_min=None, distance_max=None,
-        velocity_min=None, velocity_max=None,
-        diameter_min=None, diameter_max=None,
-        hazardous=None
-):
+        date: Optional[datetime.date] = None,
+        start_date: Optional[datetime.date] = None,
+        end_date: Optional[datetime.date] = None,
+        distance_min: Optional[float] = None,
+        distance_max: Optional[float] = None,
+        velocity_min: Optional[float] = None,
+        velocity_max: Optional[float] = None,
+        diameter_min: Optional[float] = None,
+        diameter_max: Optional[float] = None,
+        hazardous: Optional[bool] = None,
+    ) -> Collection[AttributeFilter]:
     """Create a collection of filters from user-specified criteria.
 
     Each of these arguments is provided by the main module with a value from the
@@ -108,8 +151,28 @@ def create_filters(
     :param hazardous: Whether the NEO of a matching `CloseApproach` is potentially hazardous.
     :return: A collection of filters for use with `query`.
     """
-    # TODO: Decide how you will represent your filters.
-    return ()
+    filters = set()
+    if date:
+        filters.add(DateFilter(operator.eq, date))
+    if start_date:
+        filters.add(DateFilter(operator.ge, start_date))
+    if end_date:
+        filters.add(DateFilter(operator.le, end_date))
+    if distance_min:
+        filters.add(DistanceFilter(operator.ge, distance_min))
+    if distance_max:
+        filters.add(DistanceFilter(operator.le, distance_max))
+    if velocity_min:
+        filters.add(VelocityFilter(operator.ge, velocity_min))
+    if velocity_max:
+        filters.add(VelocityFilter(operator.le, velocity_max))
+    if diameter_min:
+        filters.add(DiameterFilter(operator.ge, diameter_min))
+    if diameter_max:
+        filters.add(DiameterFilter(operator.le, diameter_max))
+    if hazardous != None:
+        filters.add(HazardousFilter(operator.eq, hazardous))
+    return filters
 
 
 def limit(iterator, n=None):

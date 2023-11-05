@@ -100,7 +100,7 @@ class CloseApproach:
     def __init__(
         self,
         designation: str = '',
-        time: Optional[str] = None,
+        time: str = '',
         distance: float = 0.0,
         velocity: float = 0.0,
     ) -> None:
@@ -112,7 +112,7 @@ class CloseApproach:
         :param velocity: A float of the velocity, in kilometers per second, of the NEO relative to Earth at the closest point.
         """
         self._designation: str = designation
-        self.time: Optional[datetime.datetime] = cd_to_datetime(time) if time else None
+        self.time: datetime.datetime = cd_to_datetime(time)
         self.distance: float = distance
         self.velocity: float = velocity
 
@@ -123,7 +123,7 @@ class CloseApproach:
     def create(cls, data) -> CloseApproach:
         return cls(
             designation=str(data[0]),
-            time=str(data[3]) if data[3] else None,
+            time=str(data[3]),
             distance=float(data[4]) if data[4] else 0.0,
             velocity=float(data[7]) if data[7] else 0.0,
         )

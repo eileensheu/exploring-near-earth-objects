@@ -41,5 +41,5 @@ def load_approaches(cad_json_path):
     with open(cad_json_path) as f:
         cad = json.load(f)
     cad_data = cad.get("data", [])
-    approaches = { CloseApproach.create(approach) for approach in cad_data }
+    approaches = {CloseApproach.create(approach) for approach in cad_data}
     return approaches
