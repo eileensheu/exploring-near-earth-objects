@@ -17,9 +17,10 @@ iterator.
 You'll edit this file in Tasks 3a and 3c.
 """
 import datetime
+import itertools
 import operator
 from models import CloseApproach
-from typing import Collection, Optional
+from typing import Collection, Iterable, Optional
 
 
 class UnsupportedCriterionError(NotImplementedError):
@@ -175,7 +176,7 @@ def create_filters(
     return filters
 
 
-def limit(iterator, n=None):
+def limit(iterator: Iterable[CloseApproach], n: Optional[int] = None) -> Iterable[CloseApproach]:
     """Produce a limited stream of values from an iterator.
 
     If `n` is 0 or None, don't limit the iterator at all.
@@ -184,5 +185,4 @@ def limit(iterator, n=None):
     :param n: The maximum number of values to produce.
     :yield: The first (at most) `n` values from the iterator.
     """
-    # TODO: Produce at most `n` values from the given iterator.
-    return iterator
+    return itertools.islice(iterator, n) if n else iterator
