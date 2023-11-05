@@ -17,8 +17,10 @@ quirks of the data set, such as missing names and unknown diameters.
 
 You'll edit this file in Task 1.
 """
+from __future__ import annotations
 from helpers import cd_to_datetime, datetime_to_str
-from typing import Optional
+from typing import Optional, List
+import datetime
 
 
 class NearEarthObject:
@@ -47,25 +49,25 @@ class NearEarthObject:
         :param diameter: A float of the diameter, in kilometers, of this NearEarthObject.
         :param hazardous: A boolean whether or not this NearEarthObject is potentially hazardous.
         """
-        self.designation = designation
-        self.name = name
-        self.diameter = diameter
-        self.hazardous = hazardous
+        self.designation: str = designation
+        self.name: Optional[str] = name
+        self.diameter: float = diameter
+        self.hazardous: bool = hazardous
 
         # Create an empty initial collection of linked approaches.
-        self.approaches = []
+        self.approaches: List[CloseApproach] = []
 
     @classmethod
-    def create(cls, neo_row):
+    def create(cls, neo_row) -> NearEarthObject:
         return cls(
             designation=str(neo_row[3]),
-            name=str(neo_row[4]),
-            diameter=float(neo_row[15]),
+            name=str(neo_row[4]) if neo_row[4] else None,
+            diameter=float(neo_row[15]) if neo_row[15] else float('nan'),
             hazardous=True if str(neo_row[7]) == "Y" else False
         )
 
     @property
-    def fullname(self):
+    def fullname(self) -> str:
         """Return a representation of the full name of this NEO."""
         return f"{self.designation} ({self.name})" if self.name else f"{self.designation}"
 
@@ -98,7 +100,7 @@ class CloseApproach:
     def __init__(
         self,
         designation: str = '',
-        time:  Optional[str] = None,
+        time: Optional[str] = None,
         distance: float = 0.0,
         velocity: float = 0.0,
     ) -> None:
@@ -109,25 +111,25 @@ class CloseApproach:
         :param distance: A float of the nominal approach distance, in astronomical units, of the NEO to Earth at the closest point.
         :param velocity: A float of the velocity, in kilometers per second, of the NEO relative to Earth at the closest point.
         """
-        self._designation = designation
-        self.time = cd_to_datetime(time)
-        self.distance = distance
-        self.velocity = velocity
+        self._designation: str = designation
+        self.time: Optional[datetime.datetime] = cd_to_datetime(time) if time else None
+        self.distance: float = distance
+        self.velocity: float = velocity
 
         # Create an attribute for the referenced NEO, originally None.
-        self.neo = None
+        self.neo: Optional[NearEarthObject] = None
 
     @classmethod
-    def create(cls, data):
+    def create(cls, data) -> CloseApproach:
         return cls(
             designation=str(data[0]),
-            time=str(data[3]),
-            distance=float(data[4]),
-            velocity=float(data[7]),
+            time=str(data[3]) if data[3] else None,
+            distance=float(data[4]) if data[4] else 0.0,
+            velocity=float(data[7]) if data[7] else 0.0,
         )
 
     @property
-    def time_str(self):
+    def time_str(self) -> str:
         """Return a formatted representation of this `CloseApproach`'s approach time.
 
         The value in `self.time` should be a Python `datetime` object. While a
