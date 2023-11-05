@@ -12,9 +12,11 @@ You'll edit this file in Part 4.
 """
 import csv
 import json
+from models import CloseApproach
+from typing import Iterable
 
 
-def write_to_csv(results, filename):
+def write_to_csv(results: Iterable[CloseApproach], filename: str) -> None:
     """Write an iterable of `CloseApproach` objects to a CSV file.
 
     The precise output specification is in `README.md`. Roughly, each output row
@@ -28,10 +30,23 @@ def write_to_csv(results, filename):
         'datetime_utc', 'distance_au', 'velocity_km_s',
         'designation', 'name', 'diameter_km', 'potentially_hazardous'
     )
-    # TODO: Write the results to a CSV file, following the specification in the instructions.
+    with open(filename, 'w') as f:
+        writer = csv.writer(f)
+        writer.writerow(fieldnames)
+        for approach in results:
+            row = (
+                approach.time_str,
+                approach.distance,
+                approach.velocity,
+                approach._designation,
+                approach.neo.name if approach.neo else None,
+                approach.neo.diameter if approach.neo else None,
+                approach.neo.hazardous if approach.neo else None,
+            )
+            writer.writerow(row)
 
 
-def write_to_json(results, filename):
+def write_to_json(results: Iterable[CloseApproach], filename: str) -> None:
     """Write an iterable of `CloseApproach` objects to a JSON file.
 
     The precise output specification is in `README.md`. Roughly, the output is a
@@ -42,4 +57,6 @@ def write_to_json(results, filename):
     :param results: An iterable of `CloseApproach` objects.
     :param filename: A Path-like object pointing to where the data should be saved.
     """
-    # TODO: Write the results to a JSON file, following the specification in the instructions.
+    results_as_dicts = [result.as_dict() for result in results]
+    with open(filename, "w") as f:
+        json.dump(results_as_dicts, f, indent=2)

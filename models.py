@@ -19,7 +19,7 @@ You'll edit this file in Task 1.
 """
 from __future__ import annotations
 from helpers import cd_to_datetime, datetime_to_str
-from typing import Optional, List
+from typing import Optional, List, Union
 import datetime
 
 
@@ -127,6 +127,19 @@ class CloseApproach:
             distance=float(data[4]) if data[4] else 0.0,
             velocity=float(data[7]) if data[7] else 0.0,
         )
+
+    def as_dict(self) -> dict[str, Union[str, float, dict[str, Union[str, float, None]]]]:
+        return {
+            "datetime_utc": self.time_str,
+            "distance_au": self.distance,
+            "velocity_km_s": self.velocity,
+            "neo": {
+                "designation": self.neo.designation if self.neo else None,
+                "name": self.neo.name if self.neo and self.neo.name else "" if self.neo else None,
+                "diameter_km": self.neo.diameter if self.neo else None,
+                "potentially_hazardous": self.neo.hazardous if self.neo else None,
+            }
+        }
 
     @property
     def time_str(self) -> str:
