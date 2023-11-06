@@ -24,6 +24,7 @@ class NEODatabase:
     help fetch NEOs by primary designation or by name and to help speed up
     querying for close approaches that match criteria.
     """
+
     def __init__(
         self,
         neos: Collection[NearEarthObject],

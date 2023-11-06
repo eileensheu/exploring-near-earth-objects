@@ -35,6 +35,7 @@ class NearEarthObject:
     initialized to an empty collection, but eventually populated in the
     `NEODatabase` constructor.
     """
+
     def __init__(
         self,
         designation: str = '',
@@ -59,6 +60,10 @@ class NearEarthObject:
 
     @classmethod
     def create(cls, neo_row) -> NearEarthObject:
+        """Create a new `NearEarthObject`.
+
+        :param neo_row: A List of data about one near-earth object
+        """
         return cls(
             designation=str(neo_row[3]),
             name=str(neo_row[4]) if neo_row[4] else None,
@@ -97,6 +102,7 @@ class CloseApproach:
     private attribute, but the referenced NEO is eventually replaced in the
     `NEODatabase` constructor.
     """
+
     def __init__(
         self,
         designation: str = '',
@@ -121,6 +127,10 @@ class CloseApproach:
 
     @classmethod
     def create(cls, data) -> CloseApproach:
+        """Create a new `CloseApproach`.
+
+        :param data: A List of data about one close approach
+        """
         return cls(
             designation=str(data[0]),
             time=str(data[3]),
@@ -129,6 +139,10 @@ class CloseApproach:
         )
 
     def as_dict(self) -> dict[str, Union[str, float, dict[str, Union[str, float, None]]]]:
+        """Create a new `CloseApproach`.
+
+        :return: A dictionary of the attributes of a `NearEarthObject`.
+        """
         return {
             "datetime_utc": self.time_str,
             "distance_au": self.distance,
